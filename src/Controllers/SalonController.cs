@@ -1,4 +1,5 @@
 using Booking.Models;
+using System;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
@@ -19,11 +20,14 @@ namespace Booking.Controllers
         [HttpPost]
         public IActionResult Post([FromBody]Salon salon)
         {
-
             if (salon == null)
             {
                 return BadRequest();
             }
+
+			if (salon.Id != 0) {
+				return BadRequest();
+			}
 
             if (string.IsNullOrEmpty(salon.Name) || salon.SeatHeight <= 0 || salon.SeatWidth <= 0)
             {
@@ -32,11 +36,6 @@ namespace Booking.Controllers
 
             if (salon.Name.Length > MaxLength) {
                 return BadRequest();
-            }
-
-            if (IsSalonIdDuplicate(salon.Id))
-            {
-                return Conflict();
             }
 
             if (salon.SeatHeight < 0 || salon.SeatWidth < 0) {
@@ -48,17 +47,73 @@ namespace Booking.Controllers
             return Created("salon created", salon);
         }
 
-        public bool IsSalonIdDuplicate(int salonId)
-        {
-            var salonIds = _appDbContext.Salons.Select(s => s.Id);
-            foreach (int id in salonIds)
+		[HttpGet]
+		public IActionResult GetSalons() {
+			var salons = _appDbContext.Salons.Select(x => x).ToList();
+			return Ok(salons);
+		}
+
+		[HttpGet("{id}")]
+		public IActionResult GetSalon(int id) {
+			var salon = _appDbContext.Salons.Find(id);
+			if (salon == null) {
+				return NotFound();
+			}
+
+			return Ok(salon);
+		}
+
+		[HttpPut("{id}")]
+		public IActionResult UpdateSalon(int id, [FromBody] Salon newSalon) {
+			var salon = _appDbContext.Salons.Find(id);
+			if (salon == null) {
+				return NotFound();
+			}
+
+			if (newSalon.Id != 0) {
+				if (newSalon.Id != id) {
+					return BadRequest();
+				}
+			}
+
+			if (string.IsNullOrEmpty(salon.Name) || salon.SeatHeight <= 0 || salon.SeatWidth <= 0)
             {
-                if (salonId == id)
-                {
-                    return true;
-                }
+                return BadRequest();
             }
-            return false;
-        }
+
+            if (salon.Name.Length > MaxLength) {
+                return BadRequest();
+            }
+
+            if (salon.SeatHeight < 0 || salon.SeatWidth < 0) {
+                return BadRequest();
+            }
+
+			if (!string.IsNullOrEmpty(newSalon.Name)) {
+				salon.Name = newSalon.Name;
+			}
+
+			if (newSalon.SeatWidth != 0) {
+				salon.SeatWidth = newSalon.SeatWidth;
+			}
+
+			if (newSalon.SeatHeight != 0) {
+				salon.SeatHeight = newSalon.SeatHeight;
+			}
+
+			_appDbContext.SaveChanges();
+
+			return Ok(salon);
+		}
+
+		[HttpDelete("{id}")]
+		public IActionResult DeleteSalon(int id) {
+			var salon = _appDbContext.Salons.Find(id);
+			if (salon == null) {
+				return NotFound();
+			}
+
+			return Ok();
+		}
     }
 }
