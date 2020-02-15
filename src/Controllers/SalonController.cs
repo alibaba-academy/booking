@@ -8,37 +8,53 @@ namespace Booking.Controllers
     [ApiController]
     public class SalonController : ControllerBase
     {
-        public AppDbContext _appDbContext { get; set; }
+        private readonly AppDbContext _appDbContext;
+        public const int MaxLength = 10;
 
-        public SalonController(AppDbContext appDbContext) {
+        public SalonController(AppDbContext appDbContext)
+        {
             _appDbContext = appDbContext;
         }
 
         [HttpPost]
-        public IActionResult post([FromBody]Salon salon) {
-            
-            
-            if (salon == null) {
+        public IActionResult Post([FromBody]Salon salon)
+        {
+
+            if (salon == null)
+            {
                 return BadRequest();
             }
 
-            if (string.IsNullOrEmpty(salon.Name) || salon.SeatHeight <= 0 || salon.SeatWidth <= 0) {
+            if (string.IsNullOrEmpty(salon.Name) || salon.SeatHeight <= 0 || salon.SeatWidth <= 0)
+            {
                 return BadRequest();
             }
 
-            if (isSalonIdDuplicate(salon.Id)){
+            if (salon.Name.Length > MaxLength) {
+                return BadRequest();
+            }
+
+            if (IsSalonIdDuplicate(salon.Id))
+            {
                 return Conflict();
             }
 
-            _appDbContext.salons.Add(salon);
+            if (salon.SeatHeight < 0 || salon.SeatWidth < 0) {
+                return BadRequest();
+            }
+
+            _appDbContext.Salons.Add(salon);
             _appDbContext.SaveChanges();
-            return Created("salon created",salon);
+            return Created("salon created", salon);
         }
 
-         public bool isSalonIdDuplicate(int salonId) {
-            var salonIds = _appDbContext.salons.Select(s => s.Id);
-            foreach (int id in salonIds) {
-                if (salonId == id) {
+        public bool IsSalonIdDuplicate(int salonId)
+        {
+            var salonIds = _appDbContext.Salons.Select(s => s.Id);
+            foreach (int id in salonIds)
+            {
+                if (salonId == id)
+                {
                     return true;
                 }
             }

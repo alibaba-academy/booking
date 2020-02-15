@@ -6,11 +6,11 @@ namespace Booking
     public class AppDbContext : DbContext
     {
 
-        public DbSet<Show> shows { get; set; }
-        public DbSet<Salon> salons { get; set; }
+        public DbSet<Show> Shows { get; set; }
+        public DbSet<Salon> Salons { get; set; }
 
-        public DbSet<Ticket> tickets { get; set; }
-        public DbSet<Seat> seats { get; set; }
+        public DbSet<Ticket> Tickets { get; set; }
+        public DbSet<Seat> Seats { get; set; }
 
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
