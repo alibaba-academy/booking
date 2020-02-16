@@ -21,7 +21,7 @@ namespace Booking.Controllers
         [HttpPost]
         public IActionResult Post([FromBody]Show show)
         {
-            Console.WriteLine("jafar salam");
+        
 
             var testShow = _appDbContext.Shows.Find(show.Id);
             if (testShow != null)
@@ -79,7 +79,7 @@ namespace Booking.Controllers
 
             if (hasConflict)
             {
-                Console.WriteLine("conflict request salon");
+                
                 return Conflict();
             }
 

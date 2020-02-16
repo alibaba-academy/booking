@@ -1,6 +1,9 @@
 using Booking.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
+
 using System.Linq;
 
 namespace Booking.Controllers
@@ -112,6 +115,8 @@ namespace Booking.Controllers
 			if (salon == null) {
 				return NotFound();
 			}
+			_appDbContext.Entry(salon).State = EntityState.Deleted;
+			_appDbContext.SaveChanges();
 
 			return Ok();
 		}
